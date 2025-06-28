@@ -43,7 +43,7 @@
     -u  --unique            remove duplicate bitmaps from the atlas
     -r  --rotate            enabled rotating bitmaps 90 degrees clockwise when packing
     -s# --size#             max atlas size (# can be 4096, 2048, 1024, 512, 256, 128, or 64)
-    -p# --pad#              padding between images (# can be from 0 to 16)
+    -p# --pad#              padding between images (# can be from 0 to 32)
  
  binary format:
     [int16] num_textures (below block is repeated this many times)
@@ -190,7 +190,7 @@ static int GetPackSize(const string& str)
 
 static int GetPadding(const string& str)
 {
-    for (int i = 0; i <= 16; ++i)
+    for (int i = 0; i <= 32; ++i)
         if (str == to_string(i))
             return i;
     cerr << "invalid padding value: " << str << endl;
@@ -308,7 +308,7 @@ int main(int argc, const char* argv[])
     -u  --unique            remove duplicate bitmaps from the atlas
     -r  --rotate            enabled rotating bitmaps 90 degrees clockwise when packing
     -s# --size#             max atlas size (# can be 4096, 2048, 1024, 512, or 256)
-    -p# --pad#              padding between images (# can be from 0 to 16)*/
+    -p# --pad#              padding between images (# can be from 0 to 32)*/
     
     if (optVerbose)
     {
