@@ -77,7 +77,7 @@
 
 using namespace std;
 
-static int optSize;
+static int optSizeW, optSizeH;
 static int optPadding;
 static bool optXml;
 static bool optBinary;
@@ -167,25 +167,23 @@ static void RemoveFile(string file)
     remove(file.data());
 }
 
-static int GetPackSize(const string& str)
+static void GetPackSize(const string& str, int &w, int &h)
 {
-    if (str == "4096")
-        return 4096;
-    if (str == "2048")
-        return 2048;
-    if (str == "1024")
-        return 1024;
-    if (str == "512")
-        return 512;
-    if (str == "256")
-        return 256;
-    if (str == "128")
-        return 128;
-    if (str == "64")
-        return 64;
+    if (str == "4096") { w = h = 4096; return; }
+    if (str == "2048") { w = h = 2048; return; }
+    if (str == "1024") { w = h = 1024; return; }
+    if (str == "512") { w = h = 512; return; }
+    if (str == "256") { w = h = 256; return; }
+    if (str == "128") { w = h = 128; return; }
+    if (str == "64") { w = h = 64; return; }
+    int p = str.find('x');
+    if (p != std::string::npos) {
+      w = std::stoi(str.substr(0, p));
+      h = std::stoi(str.substr(p + 1));
+      return;
+    }
     cerr << "invalid size: " << str << endl;
     exit(EXIT_FAILURE);
-    return 0;
 }
 
 static int GetPadding(const string& str)
@@ -226,7 +224,7 @@ int main(int argc, const char* argv[])
     }
     
     //Get the options
-    optSize = 4096;
+    optSizeW = optSizeH = 4096;
     optPadding = 1;
     optXml = false;
     optBinary = false;
@@ -260,9 +258,9 @@ int main(int argc, const char* argv[])
         else if (arg == "-r" || arg == "--rotate")
             optRotate = true;
         else if (arg.find("--size") == 0)
-            optSize = GetPackSize(arg.substr(6));
+            GetPackSize(arg.substr(6), optSizeW, optSizeH);
         else if (arg.find("-s") == 0)
-            optSize = GetPackSize(arg.substr(2));
+            GetPackSize(arg.substr(2), optSizeW, optSizeH);
         else if (arg.find("--pad") == 0)
             optPadding = GetPadding(arg.substr(5));
         else if (arg.find("-p") == 0)
@@ -322,7 +320,7 @@ int main(int argc, const char* argv[])
         cout << "\t--force: " << (optForce ? "true" : "false") << endl;
         cout << "\t--unique: " << (optUnique ? "true" : "false") << endl;
         cout << "\t--rotate: " << (optRotate ? "true" : "false") << endl;
-        cout << "\t--size: " << optSize << endl;
+        cout << "\t--size: " << optSizeW << 'x' << optSizeH << endl;
         cout << "\t--pad: " << optPadding << endl;
     }
     
@@ -355,7 +353,7 @@ int main(int argc, const char* argv[])
     {
         if (optVerbose)
             cout << "packing " << bitmaps.size() << " images..." << endl;
-        auto packer = new Packer(optSize, optSize, optPadding);
+        auto packer = new Packer(optSizeW, optSizeH, optPadding);
         packer->Pack(bitmaps, optVerbose, optUnique, optRotate);
         packers.push_back(packer);
         if (optVerbose)
